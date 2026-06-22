@@ -1650,15 +1650,16 @@
 // ─── NAVIGATION ────────────────────────────────────────
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
+  var target = document.getElementById('page-' + name);
+  if (!target) return;
+  target.classList.add('active');
   document.querySelectorAll('.nav-links a').forEach(a => {
     a.classList.toggle('active', a.dataset.page === name);
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // close mobile menu
   document.getElementById('navLinks').classList.remove('open');
-  // trigger scroll animations
   setTimeout(observeReveal, 100);
+  if (name === 'portfolio') setTimeout(animatePortfolioCards, 150);
 }
 
 function toggleMenu() {
@@ -1800,17 +1801,7 @@ function sendChat() {
   }, 900 + Math.random() * 600);
 }
 
-// ─── PORTFOLIO ANIMATION ON PAGE SHOW ─────────────────
-const origShowPage = showPage;
-document.querySelectorAll('[onclick]');
-// Patch: animate portfolio when visited
-const _sp = window.showPage;
-window.showPage = function(name) {
-  showPage(name);
-  if (name === 'portfolio') setTimeout(animatePortfolioCards, 150);
-};
-
-// Init portfolio on first load if it's visible
+// Init on load
 window.addEventListener('load', () => {
   observeReveal();
 });
