@@ -45,25 +45,11 @@
 
   html {
     scroll-behavior: smooth;
-    scroll-snap-type: y proximity;
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-snap-type: none; }
   }
-  /* Snap targets: each direct top-level block within the active page */
-  .page.active > section,
-  .page.active > .cta-banner,
-  .page.active > footer,
-  .page.active > .services-page-hero,
-  .page.active > .goals-hero,
-  .page.active > .manifesto,
-  .page.active > .team-section,
-  .page.active > .portfolio-section,
-  .page.active > .contact-section,
-  .page.active > div[style*="padding: 0 48px 80px"] {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
+  
   .hero { min-height: 100vh; scroll-snap-align: start; }
 
   body {
@@ -80,13 +66,13 @@
   .cursor-glow {
     position: fixed;
     top: 0; left: 0;
-    width: 520px; height: 520px;
+    width: 3600px; height: 3600px;
     pointer-events: none;
     z-index: 2;
     transform: translate(-50%, -50%);
     border-radius: 50%;
     background: radial-gradient(circle,
-      rgba(var(--accent-glow), 0.30) 0%,
+      rgba(var(--accent-glow), 0.50) 0%,
       rgba(var(--accent-glow), 0.16) 30%,
       rgba(255,255,255,0.06) 50%,
       transparent 72%);
