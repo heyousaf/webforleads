@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web For Leads — Professional Web Development</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0A0A0A;
+    --white: #FFFFFF;
+    --off-white: #F0F0F0;
+    --grey-light: #D0D0D0;
+    --grey-mid: #888888;
+    --grey-dark: #333333;
+    --card-bg: #141414;
+    --border: #222222;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  [data-theme="light"] {
+    --black: #FFFFFF;
+    --white: #0A0A0A;
+    --off-white: #1A1A1A;
+    --grey-light: #2E2E2E;
+    --grey-mid: #6B6B6B;
+    --grey-dark: #D8D8D8;
+    --card-bg: #F4F4F4;
+    --border: #E2E2E2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--off-white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+  /* ─── CURSOR GLOW ─────────────────────────────────── */
+  .cursor-glow {
+    position: fixed;
+    top: 0; left: 0;
+    width: 480px; height: 480px;
+    pointer-events: none;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 35%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    will-change: transform;
+  }
+  [data-theme="light"] .cursor-glow {
+    background: radial-gradient(circle, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.025) 35%, transparent 70%);
+  }
+  .cursor-glow.active { opacity: 1; }
+  @media (max-width: 900px) {
+    .cursor-glow { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cursor-glow { display: none; }
+  }
+
+  /* ─── THEME TOGGLE RAIL ───────────────────────────── */
+  .theme-rail {
+    position: fixed;
+    top: 50%; right: 24px;
+    transform: translateY(-50%);
+    z-index: 998;
+    display: flex; flex-direction: column;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 6px;
+    gap: 4px;
+    border-radius: 30px;
+  }
+  .theme-rail button {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--grey-mid);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s ease;
+  }
+  .theme-rail button svg { width: 16px; height: 16px; }
+  .theme-rail button.active {
+    background: var(--white);
+    color: var(--black);
+  }
+  .theme-rail button:hover:not(.active) { color: var(--white); }
+  @media (max-width: 900px) {
+    .theme-rail {
+      top: auto; bottom: 100px; right: 16px;
+      transform: none;
+      flex-direction: row;
+    }
+  }
+
+  /* ─── NAV ─────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    padding: 0 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 72px;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  [data-theme="light"] nav { background: rgba(255,255,255,0.92); }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 24px;
+    letter-spacing: 2px;
+    color: var(--white);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--grey-mid); }
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--grey-mid);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+  .nav-cta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    text-decoration: none;
+  }
+  .nav-cta:hover { background: var(--grey-light); }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 2px; background: var(--white); transition: all 0.3s; }
+
+  /* ─── PAGES ───────────────────────────────────────── */
+  .page { display: none; padding-top: 72px; }
+  .page.active { display: block; }
+
+  /* ─── HERO ────────────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative;
+    padding: 0 48px;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  [data-theme="light"] .hero-grid {
+    background-image:
+      linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  }
+  .hero-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--grey-mid);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    display: inline-block;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.3s;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(64px, 10vw, 140px);
+    line-height: 0.9;
+    letter-spacing: -1px;
+    color: var(--white);
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.5s;
+  }
+  .hero h1 .accent { color: var(--grey-mid); }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--grey-mid);
+    max-width: 560px;
+    margin-top: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.7s;
+  }
+  .hero-actions {
+    display: flex; gap: 16px; margin-top: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.9s;
+  }
+  .btn-primary {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--white);
+    color: var(--black);
+    border: none;
+    padding: 16px 36px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--off-white); transform: translateY(-2px); }
+  .btn-outline {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--border);
+    padding: 16px 36px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--grey-mid); transform: translateY(-2px); }
+  .hero-stats {
+    display: flex; gap: 64px;
+    margin-top: 96px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.1s;
+  }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: var(--white);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--grey-mid);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 1.5s;
+  }
+  .hero-scroll span {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--grey-mid);
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--grey-mid), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* ─── SECTIONS ────────────────────────────────────── */
+  .section { padding: 120px 48px; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--grey-mid);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 80px);
+    line-height: 1;
+    color: var(--white);
+    margin-bottom: 24px;
+  }
+  .section-sub {
+    font-size: 17px;
+    color: var(--grey-mid);
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  /* ─── HOME: SERVICES PREVIEW ─────────────────────── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-top: 64px;
+    border: 1px solid var(--border);
+  }
+  .service-card {
+    background: var(--black);
+    padding: 48px 40px;
+    cursor: pointer;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--white);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .service-card:hover { background: var(--card-bg); }
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-icon {
+    width: 32px; height: 32px;
+    margin-bottom: 24px;
+    color: var(--grey-light);
+  }
+  .service-icon svg { width: 100%; height: 100%; }
+  .service-card h3 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+  .service-card p {
+    font-size: 14px;
+    color: var(--grey-mid);
+    line-height: 1.7;
+  }
+
+  /* ─── WHY US ──────────────────────────────────────── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    margin-top: 80px;
+  }
+  .why-points { display: flex; flex-direction: column; gap: 40px; }
+  .why-point {
+    display: flex; gap: 24px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.6s ease;
+  }
+  .why-point.visible { opacity: 1; transform: translateX(0); }
+  .why-num {
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: var(--border);
+    line-height: 1;
+    min-width: 48px;
+  }
+  .why-text h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .why-text p { font-size: 14px; color: var(--grey-mid); line-height: 1.7; }
+  .why-visual {
+    position: relative;
+    height: 480px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .terminal {
+    width: 90%; background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 24px;
+  }
+  .terminal-bar {
+    display: flex; gap: 8px; margin-bottom: 20px;
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--grey-dark); }
+  .terminal-line { color: var(--grey-mid); margin: 4px 0; }
+  .terminal-line .green { color: #9dffb0; }
+  .terminal-line .white { color: var(--white); }
+  .cursor-blink {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--white);
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ─── SERVICES PAGE ───────────────────────────────── */
+  .services-page-hero {
+    padding: 80px 48px 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 80px;
+  }
+  .services-full-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+  .service-full-card {
+    background: var(--black);
+    padding: 60px 48px;
+    transition: background 0.3s;
+  }
+  .service-full-card:hover { background: var(--card-bg); }
+  .service-full-num {
+    font-family: var(--font-display);
+    font-size: 64px;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+  .service-full-card h3 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+  .service-full-card p {
+    font-size: 15px;
+    color: var(--grey-mid);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .feature-list { list-style: none; }
+  .feature-list li {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--grey-light);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .feature-list li::before { content: '→'; color: var(--grey-mid); }
+
+  /* ─── PRICING ─────────────────────────────────────── */
+  .pricing-box {
+    background: var(--card-bg);
+    border: 1px solid var(--white);
+    padding: 60px;
+    max-width: 480px;
+    margin: 80px auto 0;
+    text-align: center;
+  }
+  .price-tag {
+    font-family: var(--font-display);
+    font-size: 100px;
+    color: var(--white);
+    line-height: 1;
+    margin: 16px 0;
+  }
+  .price-sub {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--grey-mid);
+    text-transform: uppercase;
+  }
+  .price-features {
+    list-style: none;
+    margin: 40px 0;
+    text-align: left;
+    border-top: 1px solid var(--border);
+  }
+  .price-features li {
+    font-size: 14px;
+    color: var(--grey-light);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .price-features li::before { content: '✓'; color: var(--white); font-weight: 700; }
+
+  /* ─── GOALS PAGE ──────────────────────────────────── */
+  .goals-hero {
+    padding: 80px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  .goals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+  .goal-card {
+    background: var(--black);
+    padding: 60px 40px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .goal-card:hover { background: var(--card-bg); }
+  .goal-icon {
+    width: 32px; height: 32px;
+    margin-bottom: 32px;
+    color: var(--grey-light);
+  }
+  .goal-icon svg { width: 100%; height: 100%; }
+  .goal-card h3 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+  .goal-card p { font-size: 14px; color: var(--grey-mid); line-height: 1.7; }
+  .manifesto {
+    padding: 120px 48px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .manifesto blockquote {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 52px);
+    line-height: 1.2;
+    color: var(--white);
+    border-left: 3px solid var(--white);
+    padding-left: 40px;
+    margin-bottom: 32px;
+  }
+  .manifesto cite {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--grey-mid);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-style: normal;
+  }
+
+  /* ─── TEAM PAGE ───────────────────────────────────── */
+  .team-section { padding: 80px 48px; }
+  .team-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+  .team-card {
+    background: var(--black);
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .team-card:hover { background: var(--card-bg); }
+  .team-img-wrap {
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: var(--card-bg);
+    position: relative;
+  }
+  .team-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.1);
+    transition: transform 0.5s ease, filter 0.3s;
+  }
+  .team-card:hover .team-img-wrap img {
+    transform: scale(1.04);
+    filter: grayscale(0.7) contrast(1.1);
+  }
+  .ai-avatar {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  }
+  [data-theme="light"] .ai-avatar { background: linear-gradient(135deg, #ececec 0%, #f7f7f7 100%); }
+  .team-info { padding: 40px; }
+  .team-role {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--grey-mid);
+    margin-bottom: 8px;
+  }
+  .team-name {
+    font-family: var(--font-display);
+    font-size: 40px;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+  .team-bio { font-size: 14px; color: var(--grey-mid); line-height: 1.7; }
+
+  /* ─── PORTFOLIO PAGE ──────────────────────────────── */
+  .portfolio-section { padding: 80px 48px; }
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 64px;
+  }
+  .portfolio-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.4s ease;
+  }
+  .portfolio-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.8);
+    border-color: var(--grey-mid);
+    z-index: 10;
+  }
+  .portfolio-img {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(0.2);
+    transition: filter 0.4s ease, transform 0.5s ease;
+    background: var(--card-bg);
+  }
+  .portfolio-card:hover .portfolio-img {
+    filter: grayscale(0);
+    transform: scale(1.05);
+  }
+  .portfolio-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 24px;
+    background: linear-gradient(to top, rgba(10,10,10,0.97) 0%, transparent 100%);
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.4s ease;
+  }
+  [data-theme="light"] .portfolio-overlay { background: linear-gradient(to top, rgba(255,255,255,0.97) 0%, transparent 100%); }
+  .portfolio-card:hover .portfolio-overlay {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .portfolio-type {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--grey-mid);
+    margin-bottom: 6px;
+  }
+  .portfolio-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .portfolio-desc { font-size: 12px; color: var(--grey-mid); }
+  .portfolio-tag {
+    position: absolute; top: 16px; left: 16px;
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--black);
+    color: var(--grey-light);
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+  }
+
+  /* ─── CONTACT PAGE ────────────────────────────────── */
+  .contact-section {
+    min-height: calc(100vh - 72px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .contact-left {
+    padding: 80px 64px;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .contact-right {
+    padding: 80px 64px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .contact-info { margin-top: 48px; display: flex; flex-direction: column; gap: 32px; }
+  .contact-item { display: flex; gap: 20px; align-items: flex-start; }
+  .contact-item-icon {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--grey-light);
+  }
+  .contact-item-icon svg { width: 18px; height: 18px; }
+  .contact-item-label {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--grey-mid);
+    margin-bottom: 4px;
+  }
+  .contact-item-value { font-size: 15px; color: var(--white); }
+
+  /* Form */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--grey-mid);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--grey-mid); }
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color: var(--grey-dark); }
+  .form-group select option { background: var(--card-bg); }
+  .form-group textarea { height: 120px; resize: vertical; }
+  .submit-btn {
+    width: 100%;
+    background: var(--white);
+    color: var(--black);
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .submit-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--grey-light);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  .submit-btn:hover::before { transform: translateX(0); }
+  .submit-btn span { position: relative; z-index: 1; }
+  .form-note {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--grey-mid);
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  /* ─── CTA BANNER ──────────────────────────────────── */
+  .cta-banner {
+    background: var(--white);
+    color: var(--black);
+    padding: 80px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 40px;
+  }
+  .cta-banner h2 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+  }
+  .cta-banner p { font-size: 16px; color: #555; margin-top: 8px; }
+  [data-theme="light"] .cta-banner p { color: #ccc; }
+  .btn-dark {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    padding: 18px 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-dark:hover { background: var(--grey-dark); }
+
+  /* ─── FOOTER ──────────────────────────────────────── */
+  footer {
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+    padding: 60px 48px 32px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  .footer-brand p {
+    font-size: 13px;
+    color: var(--grey-mid);
+    margin-top: 12px;
+    line-height: 1.7;
+    max-width: 280px;
+  }
+  .footer-col h4 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--grey-mid);
+    margin-bottom: 20px;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 12px; }
+  .footer-col ul li a {
+    font-size: 14px;
+    color: var(--grey-light);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .footer-col ul li a:hover { color: var(--white); }
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 32px;
+  }
+  .footer-bottom p {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--grey-mid);
+  }
+
+  /* ─── ANIMATIONS ──────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── AI CHAT ─────────────────────────────────────── */
+  .chat-bubble {
+    position: fixed; bottom: 32px; right: 32px; z-index: 999;
+  }
+  .chat-btn {
+    width: 56px; height: 56px;
+    background: var(--white);
+    border: none; cursor: pointer;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
+    color: var(--black);
+  }
+  .chat-btn svg { width: 22px; height: 22px; }
+  .chat-btn:hover { transform: scale(1.08); }
+  .chat-window {
+    position: absolute; bottom: 68px; right: 0;
+    width: 360px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.8);
+    display: none; flex-direction: column;
+    max-height: 500px;
+  }
+  .chat-window.open { display: flex; }
+  .chat-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .chat-header-info { display: flex; align-items: center; gap: 12px; }
+  .chat-dot { width: 8px; height: 8px; background: #9dffb0; border-radius: 50%; }
+  .chat-header h4 { font-size: 14px; color: var(--white); }
+  .chat-header p { font-family: var(--font-mono); font-size: 10px; color: var(--grey-mid); }
+  .chat-close { color: var(--grey-mid); cursor: pointer; font-size: 18px; background: none; border: none; }
+  .chat-messages {
+    flex: 1; overflow-y: auto;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 12px;
+    min-height: 200px; max-height: 300px;
+  }
+  .msg { max-width: 85%; }
+  .msg-bot { align-self: flex-start; }
+  .msg-user { align-self: flex-end; }
+  .msg-bubble {
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    border-radius: 2px;
+  }
+  .msg-bot .msg-bubble { background: var(--black); color: var(--grey-light); }
+  .msg-user .msg-bubble { background: var(--white); color: var(--black); }
+  .msg-time { font-family: var(--font-mono); font-size: 10px; color: var(--grey-mid); margin-top: 4px; }
+  .chat-input-wrap {
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center;
+  }
+  .chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 16px;
+    outline: none;
+  }
+  .chat-input::placeholder { color: var(--grey-dark); }
+  .chat-send {
+    padding: 16px 20px;
+    background: var(--white);
+    border: none;
+    cursor: pointer;
+    color: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .chat-send svg { width: 16px; height: 16px; }
+  .chat-send:hover { background: var(--grey-light); }
+  .typing-dots { display: flex; gap: 4px; padding: 4px 0; }
+  .typing-dots span {
+    width: 6px; height: 6px;
+    background: var(--grey-mid);
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* ─── MOBILE NAV ──────────────────────────────────── */
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    .nav-links.open {
+      display: flex; flex-direction: column;
+      position: absolute; top: 72px; left: 0; right: 0;
+      background: var(--black);
+      border-bottom: 1px solid var(--border);
+      padding: 24px;
+      gap: 16px;
+    }
+    .hamburger { display: flex; }
+    .hero { padding: 0 24px; }
+    .hero h1 { font-size: clamp(48px, 12vw, 80px); }
+    .hero-stats { gap: 32px; flex-wrap: wrap; }
+    .section { padding: 80px 24px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .why-grid { grid-template-columns: 1fr; gap: 40px; }
+    .why-visual { display: none; }
+    .services-full-grid { grid-template-columns: 1fr; }
+    .goals-grid { grid-template-columns: 1fr; }
+    .team-grid { grid-template-columns: 1fr; }
+    .portfolio-grid { grid-template-columns: 1fr 1fr; }
+    .contact-section { grid-template-columns: 1fr; }
+    .contact-left { border-right: none; border-bottom: 1px solid var(--border); padding: 60px 24px; }
+    .contact-right { padding: 60px 24px; }
+    .form-row { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .cta-banner { flex-direction: column; text-align: center; }
+    .portfolio-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR GLOW -->
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- THEME TOGGLE RAIL -->
+<div class="theme-rail" id="themeRail">
+  <button id="themeDarkBtn" class="active" title="Dark theme" onclick="setTheme('dark')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+  </button>
+  <button id="themeLightBtn" title="Light theme" onclick="setTheme('light')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+  </button>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a class="nav-logo" onclick="showPage('home')">WEB<span>FOR</span>LEADS</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a onclick="showPage('home')" data-page="home">Home</a></li>
+    <li><a onclick="showPage('services')" data-page="services">Services</a></li>
+    <li><a onclick="showPage('goals')" data-page="goals">Our Goals</a></li>
+    <li><a onclick="showPage('team')" data-page="team">Team</a></li>
+    <li><a onclick="showPage('portfolio')" data-page="portfolio">Portfolio</a></li>
+    <li><a onclick="showPage('contact')" data-page="contact">Contact</a></li>
+  </ul>
+  <a class="nav-cta" onclick="showPage('contact')">Get Started</a>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     HOME PAGE
+══════════════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div>
+      <div class="hero-badge">Serving Businesses Across the USA</div>
+      <h1>WE BUILD<br><span class="accent">WEBSITES</span><br>THAT SELL</h1>
+      <p class="hero-sub">Professional web development starting at $500 — one time, no surprises. We turn your vision into a lead-generating machine.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showPage('contact')">Start Your Project →</button>
+        <button class="btn-outline" onclick="showPage('portfolio')">View Our Work</button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">$500</div>
+          <div class="stat-label">One-Time Fee</div>
+        </div>
+        <div>
+          <div class="stat-num">48h</div>
+          <div class="stat-label">Avg Turnaround</div>
+        </div>
+        <div>
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Client Satisfaction</div>
+        </div>
+        <div>
+          <div class="stat-num">USA</div>
+          <div class="stat-label">Nationwide</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- SERVICES PREVIEW -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-label reveal">What We Do</div>
+    <h2 class="section-title reveal">Built for Business.<br>Designed to Convert.</h2>
+    <p class="section-sub reveal">Every website we build is engineered around one goal: turning visitors into paying customers.</p>
+    <div class="services-grid reveal">
+      <div class="service-card" onclick="showPage('services')">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+        <h3>Web Design & Development</h3>
+        <p>Custom, conversion-focused websites built to represent your brand and capture leads 24/7.</p>
+      </div>
+      <div class="service-card" onclick="showPage('services')">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></div>
+        <h3>Smart Integrations</h3>
+        <p>Google Maps, contact forms wired to your email & WhatsApp, booking systems — fully connected.</p>
+      </div>
+      <div class="service-card" onclick="showPage('services')">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg></div>
+        <h3>AI Chat Assistant</h3>
+        <p>24/7 AI chatbot that answers client questions, captures leads, and never misses a prospect.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY US -->
+  <section class="section" style="background: var(--card-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="section-label reveal">Why Web For Leads</div>
+    <h2 class="section-title reveal">No Agency<br>Overhead. Pure<br>Results.</h2>
+    <div class="why-grid">
+      <div class="why-points">
+        <div class="why-point reveal">
+          <div class="why-num">01</div>
+          <div class="why-text">
+            <h4>Flat $500. No Hidden Fees.</h4>
+            <p>No monthly retainers, no surprise invoices. One payment, one world-class website delivered.</p>
+          </div>
+        </div>
+        <div class="why-point reveal">
+          <div class="why-num">02</div>
+          <div class="why-text">
+            <h4>Specialized in USA Businesses</h4>
+            <p>We understand the American market. Every design choice is made with your target customer in mind.</p>
+          </div>
+        </div>
+        <div class="why-point reveal">
+          <div class="why-num">03</div>
+          <div class="why-text">
+            <h4>Founder-Led Quality</h4>
+            <p>You work directly with Yousaf and Ahmed — no account managers, no handoffs, no diluted vision.</p>
+          </div>
+        </div>
+        <div class="why-point reveal">
+          <div class="why-num">04</div>
+          <div class="why-text">
+            <h4>Built to Rank & Convert</h4>
+            <p>SEO-optimized structure, fast load times, mobile-first design — your site works as hard as you do.</p>
+          </div>
+        </div>
+      </div>
+      <div class="why-visual reveal">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="t-dot"></div>
+            <div class="t-dot"></div>
+            <div class="t-dot"></div>
+          </div>
+          <div class="terminal-line"><span class="green">✓</span> <span class="white">Design system initialized</span></div>
+          <div class="terminal-line"><span class="green">✓</span> <span class="white">Mobile-first layout built</span></div>
+          <div class="terminal-line"><span class="green">✓</span> <span class="white">Contact form → Email connected</span></div>
+          <div class="terminal-line"><span class="green">✓</span> <span class="white">WhatsApp integration active</span></div>
+          <div class="terminal-line"><span class="green">✓</span> <span class="white">Google Maps embedded</span></div>
+          <div class="terminal-line"><span class="green">✓</span> <span class="white">AI chatbot deployed</span></div>
+          <div class="terminal-line"><span class="green">✓</span> <span class="white">SEO metadata configured</span></div>
+          <div class="terminal-line"><span class="green">✓</span> <span class="white">Site speed: 98/100</span></div>
+          <div class="terminal-line">→ Deploying to production... <span class="cursor-blink"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <div class="cta-banner">
+    <div>
+      <h2>YOUR WEBSITE<br>SHOULD BE<br>WORKING FOR YOU</h2>
+      <p>Join businesses across the USA that trust Web For Leads.</p>
+    </div>
+    <button class="btn-dark" onclick="showPage('contact')">GET STARTED FOR $500 →</button>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:20px;">WEB<span style="color:var(--grey-mid)">FOR</span>LEADS</div>
+        <p>Professional web development for USA businesses. We build websites that capture leads and grow your brand — starting at $500.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a onclick="showPage('home')">Home</a></li>
+          <li><a onclick="showPage('services')">Services</a></li>
+          <li><a onclick="showPage('goals')">Our Goals</a></li>
+          <li><a onclick="showPage('team')">Team</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Work</h4>
+        <ul>
+          <li><a onclick="showPage('portfolio')">Portfolio</a></li>
+          <li><a onclick="showPage('contact')">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:Info@webforleads.site">Info@webforleads.site</a></li>
+          <li><a>USA — Nationwide</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Web For Leads. All rights reserved.</p>
+      <p style="font-family:var(--font-mono);font-size:11px;color:var(--grey-mid);">Built by Web For Leads</p>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SERVICES PAGE
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-services">
+  <div class="services-page-hero">
+    <div class="section-label">What We Offer</div>
+    <h1 class="section-title">Everything Your<br>Business Needs<br>Online.</h1>
+    <p class="section-sub">One flat fee. Complete solution. From design to deployment — we handle it all.</p>
+  </div>
+
+  <div style="padding: 0 48px 80px;">
+    <div class="services-full-grid">
+      <div class="service-full-card">
+        <div class="service-full-num">01</div>
+        <h3>Website Design & Development</h3>
+        <p>A fully custom, professionally designed website tailored to your brand. Built mobile-first, fast-loading, and optimized to turn visitors into leads.</p>
+        <ul class="feature-list">
+          <li>Custom visual design — no templates</li>
+          <li>Mobile-responsive on all devices</li>
+          <li>Multi-page site (Home, Services, About, Contact)</li>
+          <li>SEO-optimized structure & metadata</li>
+          <li>Fast performance (90+ Google PageSpeed)</li>
+          <li>SSL secure & professionally hosted</li>
+        </ul>
+      </div>
+      <div class="service-full-card">
+        <div class="service-full-num">02</div>
+        <h3>Smart Business Integrations</h3>
+        <p>We connect your website to the tools that matter — so you never miss a lead, no matter where they come from.</p>
+        <ul class="feature-list">
+          <li>Google Maps — show your location to visitors</li>
+          <li>Contact form wired directly to your email</li>
+          <li>WhatsApp click-to-chat integration</li>
+          <li>Google Analytics & conversion tracking</li>
+          <li>Booking & scheduling system setup</li>
+          <li>Social media link integration</li>
+        </ul>
+      </div>
+      <div class="service-full-card">
+        <div class="service-full-num">03</div>
+        <h3>AI Chat Assistant</h3>
+        <p>An intelligent chatbot trained on your business that works around the clock — answering questions, collecting leads, and qualifying prospects while you sleep.</p>
+        <ul class="feature-list">
+          <li>Trained on your services, pricing & FAQs</li>
+          <li>Captures visitor name, email & phone</li>
+          <li>Answers questions instantly — 24/7</li>
+          <li>Escalates to WhatsApp or email when needed</li>
+          <li>Fully branded to match your website</li>
+          <li>Analytics dashboard included</li>
+        </ul>
+      </div>
+      <div class="service-full-card">
+        <div class="service-full-num">04</div>
+        <h3>Ongoing Support & Revisions</h3>
+        <p>We don't disappear after launch. We stand behind every site we build with dedicated support and revisions to make sure everything is perfect.</p>
+        <ul class="feature-list">
+          <li>Post-launch revisions included</li>
+          <li>Content updates & text changes</li>
+          <li>Direct access to Yousaf & Ahmed</li>
+          <li>Fast response via WhatsApp</li>
+          <li>Optional maintenance packages available</li>
+          <li>No agency middlemen</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="pricing-box reveal">
+      <div class="section-label" style="justify-content:center;display:flex;">One Simple Price</div>
+      <div class="price-tag">$500</div>
+      <div class="price-sub">One-Time Payment · No Monthly Fees</div>
+      <ul class="price-features">
+        <li>Full custom website design & development</li>
+        <li>All smart integrations included</li>
+        <li>AI chatbot setup & training</li>
+        <li>Mobile-first, SEO-ready</li>
+        <li>Post-launch support & revisions</li>
+        <li>Delivered in 5–7 business days</li>
+      </ul>
+      <button class="btn-primary" style="width:100%;" onclick="showPage('contact')">Start Your Project →</button>
+    </div>
+  </div>
+
+  <div class="cta-banner">
+    <div>
+      <h2>READY TO GET<br>YOUR BUSINESS<br>ONLINE?</h2>
+      <p>Let's build something that works for you 24/7.</p>
+    </div>
+    <button class="btn-dark" onclick="showPage('contact')">CONTACT US →</button>
+  </div>
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:20px;">WEB<span style="color:var(--grey-mid)">FOR</span>LEADS</div>
+        <p>Professional web development for USA businesses. Starting at $500.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a onclick="showPage('home')">Home</a></li>
+          <li><a onclick="showPage('services')">Services</a></li>
+          <li><a onclick="showPage('goals')">Our Goals</a></li>
+          <li><a onclick="showPage('contact')">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col"><h4>Email</h4><ul><li><a>Info@webforleads.site</a></li></ul></div>
+      <div class="footer-col"><h4>Reach</h4><ul><li><a>USA Nationwide</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Web For Leads. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     GOALS PAGE
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-goals">
+  <div class="goals-hero">
+    <div class="section-label">Our Purpose</div>
+    <h1 class="section-title">We Exist to Put<br>Businesses on<br>the Map.</h1>
+    <p class="section-sub">Every business deserves a professional online presence. We're here to make that affordable, fast, and effective — no exceptions.</p>
+    <div class="goals-grid" style="margin-top:64px;">
+      <div class="goal-card reveal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
+        <h3>Get You Online</h3>
+        <p>Too many great businesses are invisible online. Our mission is simple: build every client a professional web presence that gets them found and chosen.</p>
+      </div>
+      <div class="goal-card reveal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7c.5.4.9 1 1 1.8h6c.1-.8.5-1.4 1-1.8A7 7 0 0 0 12 2z"></path></svg></div>
+        <h3>Build Your Identity</h3>
+        <p>Your website is your brand's first impression. We make sure it's powerful, memorable, and communicates exactly why a customer should choose you over anyone else.</p>
+      </div>
+      <div class="goal-card reveal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+        <h3>Generate Real Leads</h3>
+        <p>Pretty websites don't pay bills. Ours are engineered to capture contact details, drive calls, and convert curious visitors into paying clients.</p>
+      </div>
+      <div class="goal-card reveal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <h3>Make it Accessible</h3>
+        <p>The $500 flat fee isn't a gimmick — it's our commitment. We believe great web development shouldn't be reserved for companies with big agency budgets.</p>
+      </div>
+      <div class="goal-card reveal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
+        <h3>Deliver Fast</h3>
+        <p>Your business can't wait. We move quickly without cutting corners — most sites go from briefing to launch in under a week.</p>
+      </div>
+      <div class="goal-card reveal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+        <h3>Serve All of America</h3>
+        <p>From New York to Nevada, we work with businesses across every state and every industry. Distance is never a barrier to great work.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="manifesto">
+    <blockquote>"Every business that serves the community deserves to be found by the people who need them. The internet should be an equalizer — not a barrier. That's why we built Web For Leads."</blockquote>
+    <cite>— Yousaf &amp; Ahmed, Co-Founders</cite>
+  </div>
+
+  <div class="cta-banner">
+    <div>
+      <h2>LET'S BUILD<br>YOUR IDENTITY<br>TOGETHER.</h2>
+      <p>One conversation. One website. Infinite possibilities.</p>
+    </div>
+    <button class="btn-dark" onclick="showPage('contact')">TALK TO US →</button>
+  </div>
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:20px;">WEB<span style="color:var(--grey-mid)">FOR</span>LEADS</div>
+        <p>Professional web development for USA businesses. Starting at $500.</p>
+      </div>
+      <div class="footer-col"><h4>Pages</h4><ul>
+        <li><a onclick="showPage('home')">Home</a></li>
+        <li><a onclick="showPage('services')">Services</a></li>
+        <li><a onclick="showPage('portfolio')">Portfolio</a></li>
+        <li><a onclick="showPage('contact')">Contact</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>Email</h4><ul><li><a>Info@webforleads.site</a></li></ul></div>
+      <div class="footer-col"><h4>Reach</h4><ul><li><a>USA Nationwide</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2026 Web For Leads. All rights reserved.</p></div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     TEAM PAGE
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-team">
+  <div class="team-section">
+    <div class="section-label">The People Behind The Work</div>
+    <h1 class="section-title">Two Founders.<br>One Mission.<br>Zero Compromise.</h1>
+    <p class="section-sub">We're not an agency with dozens of staff. When you hire Web For Leads, you work directly with us — the people who actually build your site.</p>
+
+    <div class="team-grid" style="margin-top:64px;">
+      <!-- YOUSAF -->
+      <div class="team-card reveal">
+        <div class="team-img-wrap">
+          <div class="ai-avatar">
+            <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="gradY" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#3a3a3a"/>
+                  <stop offset="100%" stop-color="#1c1c1c"/>
+                </linearGradient>
+              </defs>
+              <rect width="200" height="200" fill="url(#gradY)"/>
+              <circle cx="100" cy="84" r="40" fill="#454545"/>
+              <path d="M62 86c0-22 17-40 38-40s38 18 38 40" fill="#2c2c2c"/>
+              <path d="M100 156c-34 0-58 18-58 36h116c0-18-24-36-58-36z" fill="#454545"/>
+              <circle cx="86" cy="84" r="4.5" fill="#ddd"/>
+              <circle cx="114" cy="84" r="4.5" fill="#ddd"/>
+              <path d="M88 102q12 9 24 0" stroke="#ddd" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="team-info">
+          <div class="team-role">Founder & CEO</div>
+          <div class="team-name">Yousaf</div>
+          <p class="team-bio">Yousaf is the founder of Web For Leads and the creative force behind every project. With a sharp eye for design and a deep understanding of what makes a business website actually convert, he ensures every pixel earns its place. He believes a great website isn't just beautiful — it's a sales engine running 24/7.</p>
+        </div>
+      </div>
+
+      <!-- AHMED -->
+      <div class="team-card reveal">
+        <div class="team-img-wrap">
+          <div class="ai-avatar" style="background: linear-gradient(135deg, #111 0%, #222 100%);">
+            <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="gradA" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#333"/>
+                  <stop offset="100%" stop-color="#171717"/>
+                </linearGradient>
+              </defs>
+              <rect width="200" height="200" fill="url(#gradA)"/>
+              <circle cx="100" cy="84" r="40" fill="#3d3d3d"/>
+              <path d="M62 84c0-22 17-40 38-40s38 18 38 40v6h-76z" fill="#262626"/>
+              <path d="M100 156c-34 0-58 18-58 36h116c0-18-24-36-58-36z" fill="#3d3d3d"/>
+              <circle cx="86" cy="86" r="4.5" fill="#ccc"/>
+              <circle cx="114" cy="86" r="4.5" fill="#ccc"/>
+              <path d="M88 104q12 8 24 0" stroke="#ccc" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+              <rect x="78" y="112" width="44" height="6" rx="3" fill="#555"/>
+            </svg>
+          </div>
+        </div>
+        <div class="team-info">
+          <div class="team-role">Co-Founder & Technical Lead</div>
+          <div class="team-name">Ahmed</div>
+          <p class="team-bio">Ahmed is the technical backbone of Web For Leads. He architects the code, handles complex integrations, and ensures every site loads fast, ranks well on Google, and works flawlessly across every device. His obsession with clean, scalable development means your website is built to last — not just to launch.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VALUES -->
+    <div style="margin-top: 120px; border-top: 1px solid var(--border); padding-top: 80px;">
+      <div class="section-label reveal">How We Work</div>
+      <h2 class="section-title reveal">Our Process</h2>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:48px;">
+        <div style="background:var(--black);padding:40px 32px;" class="reveal">
+          <div style="font-family:var(--font-display);font-size:48px;color:var(--border);margin-bottom:16px;">01</div>
+          <h4 style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:8px;">Discovery Call</h4>
+          <p style="font-size:13px;color:var(--grey-mid);line-height:1.6;">We learn about your business, goals, and target audience.</p>
+        </div>
+        <div style="background:var(--black);padding:40px 32px;" class="reveal">
+          <div style="font-family:var(--font-display);font-size:48px;color:var(--border);margin-bottom:16px;">02</div>
+          <h4 style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:8px;">Design & Build</h4>
+          <p style="font-size:13px;color:var(--grey-mid);line-height:1.6;">We create and develop your full site — you see progress daily.</p>
+        </div>
+        <div style="background:var(--black);padding:40px 32px;" class="reveal">
+          <div style="font-family:var(--font-display);font-size:48px;color:var(--border);margin-bottom:16px;">03</div>
+          <h4 style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:8px;">Review & Refine</h4>
+          <p style="font-size:13px;color:var(--grey-mid);line-height:1.6;">You review, we revise. Nothing ships until you're thrilled.</p>
+        </div>
+        <div style="background:var(--black);padding:40px 32px;" class="reveal">
+          <div style="font-family:var(--font-display);font-size:48px;color:var(--border);margin-bottom:16px;">04</div>
+          <h4 style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:8px;">Launch & Support</h4>
+          <p style="font-size:13px;color:var(--grey-mid);line-height:1.6;">We go live and stay available for ongoing support.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-banner">
+    <div>
+      <h2>WORK WITH<br>THE FOUNDERS<br>DIRECTLY.</h2>
+      <p>No middlemen. Just great work.</p>
+    </div>
+    <button class="btn-dark" onclick="showPage('contact')">REACH OUT →</button>
+  </div>
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:20px;">WEB<span style="color:var(--grey-mid)">FOR</span>LEADS</div>
+        <p>Professional web development for USA businesses. Starting at $500.</p>
+      </div>
+      <div class="footer-col"><h4>Pages</h4><ul>
+        <li><a onclick="showPage('home')">Home</a></li>
+        <li><a onclick="showPage('services')">Services</a></li>
+        <li><a onclick="showPage('portfolio')">Portfolio</a></li>
+        <li><a onclick="showPage('contact')">Contact</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>Email</h4><ul><li><a>Info@webforleads.site</a></li></ul></div>
+      <div class="footer-col"><h4>Reach</h4><ul><li><a>USA Nationwide</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2026 Web For Leads. All rights reserved.</p></div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PORTFOLIO PAGE
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-portfolio">
+  <div class="portfolio-section">
+    <div class="section-label">Our Work</div>
+    <h1 class="section-title">Results That<br>Speak Louder<br>Than Promises.</h1>
+    <p class="section-sub">Every project below is a real business website built by Web For Leads — designed to convert and built to last.</p>
+
+    <div class="portfolio-grid" id="portfolioGrid">
+      <div class="portfolio-card" style="animation-delay:0.1s">
+        <div class="portfolio-tag">Home Care</div>
+        <img class="portfolio-img" src="https://images.unsplash.com/photo-1576765608866-5b51046452be?w=800&h=500&fit=crop&q=80" alt="Sila Senior Care" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&h=500&fit=crop&q=80'">
+        <div class="portfolio-overlay">
+          <div class="portfolio-type">Senior Care · Wilmington, NC</div>
+          <div class="portfolio-title">Sila Senior Care</div>
+          <div class="portfolio-desc">Non-medical homecare with WhatsApp form integration & RN consultation booking.</div>
+        </div>
+      </div>
+      <div class="portfolio-card" style="animation-delay:0.2s">
+        <div class="portfolio-tag">In-Home Care</div>
+        <img class="portfolio-img" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=500&fit=crop&q=80" alt="American Global Care" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&h=500&fit=crop&q=80'">
+        <div class="portfolio-overlay">
+          <div class="portfolio-type">In-Home Support · North Las Vegas, NV</div>
+          <div class="portfolio-title">American Global Care Inc.</div>
+          <div class="portfolio-desc">Full multi-page site with services grid, goals page, WhatsApp CTA & contact form.</div>
+        </div>
+      </div>
+      <div class="portfolio-card" style="animation-delay:0.3s">
+        <div class="portfolio-tag">Services</div>
+        <img class="portfolio-img" src="https://images.unsplash.com/photo-1576765607924-3ce2e9c4a1d0?w=800&h=500&fit=crop&q=80" alt="Care Services Website" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&h=500&fit=crop&q=80'">
+        <div class="portfolio-overlay">
+          <div class="portfolio-type">Personal Care · Nevada</div>
+          <div class="portfolio-title">Care Solutions USA</div>
+          <div class="portfolio-desc">All-inclusive care services with key benefits cards and inquiry call-to-actions.</div>
+        </div>
+      </div>
+      <div class="portfolio-card" style="animation-delay:0.1s">
+        <div class="portfolio-tag">Mission Page</div>
+        <img class="portfolio-img" src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=500&fit=crop&q=80" alt="Goals & Mission Page" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&h=500&fit=crop&q=80'">
+        <div class="portfolio-overlay">
+          <div class="portfolio-type">Goals & Vision · Nevada</div>
+          <div class="portfolio-title">Purpose & Vision Build</div>
+          <div class="portfolio-desc">Dual-card mission/vision layout with deep navy-to-teal gradient design system.</div>
+        </div>
+      </div>
+      <div class="portfolio-card" style="animation-delay:0.2s">
+        <div class="portfolio-tag">About Page</div>
+        <img class="portfolio-img" src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=800&h=500&fit=crop&q=80" alt="Sunnyside Home Care" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=500&fit=crop&q=80'">
+        <div class="portfolio-overlay">
+          <div class="portfolio-type">Home Care · Lewiston, Maine</div>
+          <div class="portfolio-title">Sunnyside Home Care LLC</div>
+          <div class="portfolio-desc">CEO founder story with photo card, blockquote, and "Speak With Our Team" CTA.</div>
+        </div>
+      </div>
+      <div class="portfolio-card" style="animation-delay:0.3s">
+        <div class="portfolio-tag">Contact Form</div>
+        <img class="portfolio-img" src="https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=800&h=500&fit=crop&q=80" alt="Contact Form Design" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&h=500&fit=crop&q=80'">
+        <div class="portfolio-overlay">
+          <div class="portfolio-type">Contact Integration · Multi-client</div>
+          <div class="portfolio-title">Lead Capture Form System</div>
+          <div class="portfolio-desc">Clean, conversion-optimized contact form wired to email — used across multiple client sites.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-banner">
+    <div>
+      <h2>YOUR BUSINESS<br>COULD BE OUR<br>NEXT PROJECT.</h2>
+      <p>Let's create something you're proud to show off.</p>
+    </div>
+    <button class="btn-dark" onclick="showPage('contact')">START TODAY →</button>
+  </div>
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:20px;">WEB<span style="color:var(--grey-mid)">FOR</span>LEADS</div>
+        <p>Professional web development for USA businesses. Starting at $500.</p>
+      </div>
+      <div class="footer-col"><h4>Pages</h4><ul>
+        <li><a onclick="showPage('home')">Home</a></li>
+        <li><a onclick="showPage('services')">Services</a></li>
+        <li><a onclick="showPage('portfolio')">Portfolio</a></li>
+        <li><a onclick="showPage('contact')">Contact</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>Email</h4><ul><li><a>Info@webforleads.site</a></li></ul></div>
+      <div class="footer-col"><h4>Reach</h4><ul><li><a>USA Nationwide</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2026 Web For Leads. All rights reserved.</p></div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     CONTACT PAGE
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <div class="contact-section">
+    <div class="contact-left">
+      <div class="section-label">Get In Touch</div>
+      <h1 class="section-title">Let's Build<br>Something<br>Great.</h1>
+      <p class="section-sub">Fill out the form and we'll reach out within 24 hours. Most projects kick off within 48 hours of first contact.</p>
+      <div class="contact-info">
+        <div class="contact-item">
+          <div class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M2 6l10 7 10-7"></path></svg></div>
+          <div>
+            <div class="contact-item-label">Email</div>
+            <div class="contact-item-value">Info@webforleads.site</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+          <div>
+            <div class="contact-item-label">WhatsApp</div>
+            <div class="contact-item-value">Available on request</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+          <div>
+            <div class="contact-item-label">Service Area</div>
+            <div class="contact-item-value">USA — All 50 States</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
+          <div>
+            <div class="contact-item-label">Response Time</div>
+            <div class="contact-item-value">Within 24 hours</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-right">
+      <div style="margin-bottom:32px;">
+        <div class="section-label">New Project Inquiry</div>
+        <h2 style="font-family:var(--font-display);font-size:36px;color:var(--white);">Tell Us About<br>Your Business</h2>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="cf-name" placeholder="John Smith" required>
+        </div>
+        <div class="form-group">
+          <label>Business Name *</label>
+          <input type="text" id="cf-business" placeholder="Acme Co." required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" id="cf-email" placeholder="john@yourcompany.com" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="cf-phone" placeholder="(000) 000-0000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Business Location *</label>
+        <input type="text" id="cf-location" placeholder="City, State (e.g. Austin, TX)" required>
+      </div>
+      <div class="form-group">
+        <label>Service of Interest</label>
+        <select id="cf-service">
+          <option value="">Select a service...</option>
+          <option>Full Website Design & Development</option>
+          <option>Website + AI Chatbot</option>
+          <option>Website + Smart Integrations (WhatsApp, Maps, Forms)</option>
+          <option>Complete Package (Everything)</option>
+          <option>Website Redesign</option>
+          <option>Other / Not Sure Yet</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tell Us About Your Project</label>
+        <textarea id="cf-notes" placeholder="Briefly describe your business, what you need, and any specific requirements..."></textarea>
+      </div>
+
+      <button class="submit-btn" onclick="submitForm()">
+        <span>Send Inquiry via Email →</span>
+      </button>
+      <p class="form-note">Clicking submit opens your email with all details pre-filled. Sends to Info@webforleads.site</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:20px;">WEB<span style="color:var(--grey-mid)">FOR</span>LEADS</div>
+        <p>Professional web development for USA businesses. Starting at $500.</p>
+      </div>
+      <div class="footer-col"><h4>Pages</h4><ul>
+        <li><a onclick="showPage('home')">Home</a></li>
+        <li><a onclick="showPage('services')">Services</a></li>
+        <li><a onclick="showPage('portfolio')">Portfolio</a></li>
+        <li><a onclick="showPage('goals')">Our Goals</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>Email</h4><ul><li><a>Info@webforleads.site</a></li></ul></div>
+      <div class="footer-col"><h4>Reach</h4><ul><li><a>USA Nationwide</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2026 Web For Leads. All rights reserved.</p></div>
+  </footer>
+</div>
+
+<!-- ─── AI CHAT WIDGET ─────────────────────────────────── -->
+<div class="chat-bubble">
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-dot"></div>
+        <div>
+          <h4>Web For Leads AI</h4>
+          <p>Always online · Usually responds instantly</p>
+        </div>
+      </div>
+      <button class="chat-close" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg msg-bot">
+        <div class="msg-bubble">Hi there! I'm the Web For Leads assistant. I can tell you about our services, pricing, and process. What would you like to know?</div>
+        <div class="msg-time">Just now</div>
+      </div>
+    </div>
+    <div class="chat-input-wrap">
+      <input class="chat-input" id="chatInput" placeholder="Ask about pricing, services..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+  </div>
+  <button class="chat-btn" onclick="toggleChat()" id="chatBtnEl">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="chatBtnIcon"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+  </button>
+</div>
+
+<script>
+// ─── NAVIGATION ────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  var target = document.getElementById('page-' + name);
+  if (!target) return;
+  target.classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.dataset.page === name);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('navLinks').classList.remove('open');
+  setTimeout(observeReveal, 100);
+  if (name === 'portfolio') setTimeout(animatePortfolioCards, 150);
+}
+
+function toggleMenu() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// ─── THEME TOGGLE ──────────────────────────────────────
+function setTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('themeLightBtn').classList.add('active');
+    document.getElementById('themeDarkBtn').classList.remove('active');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('themeDarkBtn').classList.add('active');
+    document.getElementById('themeLightBtn').classList.remove('active');
+  }
+  try { localStorage.setItem('wfl-theme', theme); } catch(e) {}
+}
+
+(function initTheme() {
+  // Default theme is always dark on load; website does not persist a forced light mode on its own.
+  document.documentElement.removeAttribute('data-theme');
+})();
+
+// ─── CURSOR GLOW ───────────────────────────────────────
+(function initCursorGlow() {
+  const glow = document.getElementById('cursorGlow');
+  if (!glow) return;
+  let rafId = null;
+  let targetX = window.innerWidth / 2;
+  let targetY = window.innerHeight / 2;
+
+  function render() {
+    glow.style.transform = `translate(${targetX}px, ${targetY}px) translate(-50%, -50%)`;
+    rafId = null;
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    targetX = e.clientX;
+    targetY = e.clientY;
+    glow.classList.add('active');
+    if (!rafId) rafId = requestAnimationFrame(render);
+  });
+
+  window.addEventListener('mouseleave', () => glow.classList.remove('active'));
+  document.addEventListener('mouseenter', () => glow.classList.add('active'));
+})();
+
+// ─── SCROLL REVEAL ─────────────────────────────────────
+function observeReveal() {
+  const els = document.querySelectorAll('.reveal, .why-point');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  els.forEach(el => obs.observe(el));
+}
+observeReveal();
+
+// ─── PORTFOLIO CARD ANIMATIONS ─────────────────────────
+function animatePortfolioCards() {
+  const cards = document.querySelectorAll('.portfolio-card');
+  cards.forEach((card, i) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(32px)';
+    setTimeout(() => {
+      card.style.transition = 'opacity 0.5s ease, transform 0.5s ease, box-shadow 0.4s, border-color 0.4s';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    }, i * 100 + 100);
+  });
+}
+
+// ─── CONTACT FORM ──────────────────────────────────────
+function submitForm() {
+  const name     = document.getElementById('cf-name').value.trim();
+  const business = document.getElementById('cf-business').value.trim();
+  const email    = document.getElementById('cf-email').value.trim();
+  const phone    = document.getElementById('cf-phone').value.trim();
+  const location = document.getElementById('cf-location').value.trim();
+  const service  = document.getElementById('cf-service').value;
+  const notes    = document.getElementById('cf-notes').value.trim();
+
+  if (!name || !business || !email || !location) {
+    alert('Please fill in the required fields (Name, Business, Email, Location).');
+    return;
+  }
+
+  const subject = encodeURIComponent(`New Project Inquiry from ${name} — ${business}`);
+  const body = encodeURIComponent(
+`New Project Inquiry — Web For Leads
+=====================================
+
+Name:              ${name}
+Business:          ${business}
+Email:             ${email}
+Phone:             ${phone || 'Not provided'}
+Business Location: ${location}
+Service Interest:  ${service || 'Not specified'}
+
+Project Notes:
+${notes || 'No additional notes provided.'}
+
+=====================================
+Submitted via WebForLeads.site`
+  );
+
+  window.location.href = `mailto:Info@webforleads.site?subject=${subject}&body=${body}`;
+}
+
+// ─── AI CHAT ───────────────────────────────────────────
+let chatOpen = false;
+
+const greetingReplies = [
+  "Hey! Good to see you. What can I help you with today — pricing, services, or something else?",
+  "Hi there! Welcome to Web For Leads. Ask me anything about our pricing, process, or services.",
+  "Hello! I'm doing great, thanks for asking. How can I help with your project today?"
+];
+
+const chatKB = {
+  greeting: "Hey! Good to see you. What can I help you with today — pricing, services, or something else?",
+  howAreYou: "I'm doing well, thanks for asking! Ready to help you with anything about Web For Leads — pricing, services, timeline, you name it.",
+  thanks: "You're very welcome! Let me know if there's anything else you'd like to know.",
+  bye: "Take care! Feel free to come back anytime if you have more questions. You can also reach us directly at Info@webforleads.site.",
+  price: "Our flat fee is **$500 — one time**. No monthly charges, no hidden fees. That covers the full website, integrations, and post-launch support.",
+  services: "We offer: (1) Full website design & development, (2) Smart integrations — Google Maps, email forms, WhatsApp, (3) AI chatbot setup, and (4) Ongoing support. All in one $500 package.",
+  timeline: "Most websites go from kick-off to launch in **5–7 business days**. Rush delivery (48–72hrs) is available — just ask!",
+  contact: "You can email us at **Info@webforleads.site** or fill out the contact form on the Contact page. We typically respond within 24 hours.",
+  team: "Web For Leads was founded by **Yousaf** (CEO & Designer) and **Ahmed** (Co-Founder & Technical Lead). You work directly with us — no middlemen.",
+  portfolio: "Check out our Portfolio page to see real client websites we've built. We specialize in service businesses, home care companies, and professional services.",
+  whatsapp: "Yes! We can integrate a WhatsApp click-to-chat button directly on your website so visitors can message you instantly.",
+  chatbot: "Our AI chatbot is trained on your business info — it answers FAQs, captures leads, and escalates hot prospects to you via email or WhatsApp. It works 24/7.",
+  default: "Great question! For detailed info, you can check our Services page or reach us directly at **Info@webforleads.site**. We're happy to answer anything!"
+};
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chatWindow').classList.toggle('open', chatOpen);
+  document.getElementById('chatBtnIcon').innerHTML = chatOpen
+    ? '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>'
+    : '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>';
+}
+
+function addMsg(text, isUser) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${isUser ? 'msg-user' : 'msg-bot'}`;
+  div.innerHTML = `<div class="msg-bubble">${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div><div class="msg-time">Just now</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-bot'; div.id = 'typing';
+  div.innerHTML = `<div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function getBotReply(msg) {
+  const m = msg.toLowerCase().trim();
+
+  // Friendly greetings — checked first
+  if (m.match(/^(hi|hello|hey|salam|assalam|assalamualaikum|aoa|yo|hiya|good morning|good afternoon|good evening)\b/)) {
+    return greetingReplies[Math.floor(Math.random() * greetingReplies.length)];
+  }
+  if (m.match(/how are you|how's it going|how r u|kaise ho|kya hal/)) return chatKB.howAreYou;
+  if (m.match(/thank|thanks|shukriya/)) return chatKB.thanks;
+  if (m.match(/bye|goodbye|see you|takecare|take care|khuda hafiz/)) return chatKB.bye;
+
+  if (m.match(/price|cost|fee|how much|charge|\$500/)) return chatKB.price;
+  if (m.match(/service|offer|do you|build|website/)) return chatKB.services;
+  if (m.match(/time|fast|quick|days|deliver/)) return chatKB.timeline;
+  if (m.match(/contact|email|reach|talk|speak/)) return chatKB.contact;
+  if (m.match(/team|founder|who|yousaf|ahmed/)) return chatKB.team;
+  if (m.match(/portfolio|work|example|client|past/)) return chatKB.portfolio;
+  if (m.match(/whatsapp|chat|message/)) return chatKB.whatsapp;
+  if (m.match(/bot|ai|chatbot|assistant/)) return chatKB.chatbot;
+  return chatKB.default;
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  addMsg(msg, true);
+  input.value = '';
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addMsg(getBotReply(msg), false);
+  }, 900 + Math.random() * 600);
+}
+
+// Init on load
+window.addEventListener('load', () => {
+  observeReveal();
+});
+</script>
+</body>
+</html>
