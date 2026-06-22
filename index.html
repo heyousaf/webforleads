@@ -17,6 +17,8 @@
     --grey-dark: #333333;
     --card-bg: #141414;
     --border: #222222;
+    --accent: #9dffb0;
+    --accent-glow: 157, 255, 176;
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -33,9 +35,36 @@
     --border: #E2E2E2;
   }
 
+  [data-accent="amber"]   { --accent: #FFB454; --accent-glow: 255, 180, 84; }
+  [data-accent="azure"]   { --accent: #5AC8FA; --accent-glow: 90, 200, 250; }
+  [data-accent="violet"]  { --accent: #B98EFF; --accent-glow: 185, 142, 255; }
+  [data-accent="emerald"] { --accent: #9dffb0; --accent-glow: 157, 255, 176; }
+  [data-accent="rose"]    { --accent: #FF8FA3; --accent-glow: 255, 143, 163; }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y proximity;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-snap-type: none; }
+  }
+  /* Snap targets: each direct top-level block within the active page */
+  .page.active > section,
+  .page.active > .cta-banner,
+  .page.active > footer,
+  .page.active > .services-page-hero,
+  .page.active > .goals-hero,
+  .page.active > .manifesto,
+  .page.active > .team-section,
+  .page.active > .portfolio-section,
+  .page.active > .contact-section,
+  .page.active > div[style*="padding: 0 48px 80px"] {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .hero { min-height: 100vh; scroll-snap-align: start; }
 
   body {
     background: var(--black);
@@ -51,18 +80,27 @@
   .cursor-glow {
     position: fixed;
     top: 0; left: 0;
-    width: 480px; height: 480px;
+    width: 520px; height: 520px;
     pointer-events: none;
     z-index: 2;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 35%, transparent 70%);
+    background: radial-gradient(circle,
+      rgba(var(--accent-glow), 0.30) 0%,
+      rgba(var(--accent-glow), 0.16) 30%,
+      rgba(255,255,255,0.06) 50%,
+      transparent 72%);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
     will-change: transform;
+    filter: blur(1px);
   }
   [data-theme="light"] .cursor-glow {
-    background: radial-gradient(circle, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.025) 35%, transparent 70%);
+    background: radial-gradient(circle,
+      rgba(var(--accent-glow), 0.26) 0%,
+      rgba(var(--accent-glow), 0.13) 30%,
+      rgba(0,0,0,0.08) 50%,
+      transparent 72%);
   }
   .cursor-glow.active { opacity: 1; }
   @media (max-width: 900px) {
@@ -72,21 +110,49 @@
     .cursor-glow { display: none; }
   }
 
-  /* ─── THEME TOGGLE RAIL ───────────────────────────── */
+  /* ─── THEME TOGGLE RAIL (draggable) ──────────────────── */
   .theme-rail {
     position: fixed;
     top: 50%; right: 24px;
     transform: translateY(-50%);
     z-index: 998;
     display: flex; flex-direction: column;
+    align-items: center;
     background: var(--card-bg);
+    opacity: 0.5;
     border: 1px solid var(--border);
     padding: 6px;
-    gap: 4px;
-    border-radius: 30px;
+    gap: 10px;
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    cursor: grab;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease;
+    touch-action: none;
+    user-select: none;
+  }
+  .theme-rail:hover, .theme-rail.dragging {
+    opacity: 0.95;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  }
+  .theme-rail.dragging { cursor: grabbing; }
+  .theme-rail-handle {
+    width: 18px; height: 4px;
+    border-radius: 2px;
+    background: var(--grey-mid);
+    margin-bottom: 2px;
+    cursor: grab;
+  }
+  .theme-rail-group {
+    display: flex; flex-direction: column;
+    gap: 3px;
+  }
+  .theme-rail-divider {
+    width: 16px; height: 1px;
+    background: var(--border);
+    margin: 0 auto;
   }
   .theme-rail button {
-    width: 36px; height: 36px;
+    width: 28px; height: 28px;
     border-radius: 50%;
     border: none;
     background: transparent;
@@ -95,18 +161,36 @@
     display: flex; align-items: center; justify-content: center;
     transition: all 0.25s ease;
   }
-  .theme-rail button svg { width: 16px; height: 16px; }
+  .theme-rail button svg { width: 13px; height: 13px; }
   .theme-rail button.active {
     background: var(--white);
     color: var(--black);
   }
   .theme-rail button:hover:not(.active) { color: var(--white); }
+  .accent-dot {
+    width: 17px; height: 17px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  .accent-dot::after {
+    content: '';
+    position: absolute; inset: 2px;
+    border-radius: 50%;
+    background: var(--dot-color);
+  }
+  .accent-dot.active { border-color: var(--white); transform: scale(1.15); }
   @media (max-width: 900px) {
     .theme-rail {
-      top: auto; bottom: 100px; right: 16px;
-      transform: none;
       flex-direction: row;
+      gap: 8px;
     }
+    .theme-rail-handle { width: 4px; height: 18px; margin: 0 2px 0 0; }
+    .theme-rail-group { flex-direction: row; }
+    .theme-rail-divider { width: 1px; height: 16px; margin: auto 0; }
   }
 
   /* ─── NAV ─────────────────────────────────────────── */
@@ -143,21 +227,21 @@
     transition: color 0.2s;
     cursor: pointer;
   }
-  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+  .nav-links a:hover, .nav-links a.active { color: var(--accent); }
   .nav-cta {
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--black);
-    background: var(--white);
+    background: var(--accent);
     border: none;
     padding: 10px 24px;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s, filter 0.2s;
     text-decoration: none;
   }
-  .nav-cta:hover { background: var(--grey-light); }
+  .nav-cta:hover { filter: brightness(1.12); }
   .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
   .hamburger span { width: 24px; height: 2px; background: var(--white); transition: all 0.3s; }
 
@@ -192,7 +276,7 @@
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--grey-mid);
-    border: 1px solid var(--border);
+    border: 1px solid var(--accent);
     padding: 8px 16px;
     display: inline-block;
     margin-bottom: 32px;
@@ -209,6 +293,36 @@
     animation: fadeUp 0.8s ease forwards 0.5s;
   }
   .hero h1 .accent { color: var(--grey-mid); }
+  .hero h1 .accent.swap-word { color: var(--accent); }
+  .swap-word-wrap {
+    display: inline-block;
+    perspective: 600px;
+    vertical-align: bottom;
+    text-align: left;
+  }
+  .swap-word {
+    display: inline-block;
+    position: relative;
+    color: var(--accent);
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0.1, 0.2, 1);
+    will-change: transform;
+    white-space: nowrap;
+  }
+  .swap-word.flipped {
+    transform: rotateX(180deg);
+  }
+  .swap-face {
+    backface-visibility: hidden;
+  }
+  .swap-face-front {
+    display: block;
+  }
+  .swap-face-back {
+    position: absolute;
+    top: 0; left: 0;
+    transform: rotateX(180deg);
+  }
   .hero-sub {
     font-size: 18px;
     color: var(--grey-mid);
@@ -227,14 +341,14 @@
     font-size: 12px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    background: var(--white);
+    background: var(--accent);
     color: var(--black);
     border: none;
     padding: 16px 36px;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .btn-primary:hover { background: var(--off-white); transform: translateY(-2px); }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
   .btn-outline {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -247,7 +361,7 @@
     cursor: pointer;
     transition: all 0.2s;
   }
-  .btn-outline:hover { border-color: var(--grey-mid); transform: translateY(-2px); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
   .hero-stats {
     display: flex; gap: 64px;
     margin-top: 96px;
@@ -334,7 +448,7 @@
   .service-card::before {
     content: '';
     position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: var(--white);
+    background: var(--accent);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.4s ease;
@@ -411,7 +525,7 @@
   }
   .t-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--grey-dark); }
   .terminal-line { color: var(--grey-mid); margin: 4px 0; }
-  .terminal-line .green { color: #9dffb0; }
+  .terminal-line .green { color: var(--accent); }
   .terminal-line .white { color: var(--white); }
   .cursor-blink {
     display: inline-block;
@@ -767,7 +881,7 @@
   .form-group textarea { height: 120px; resize: vertical; }
   .submit-btn {
     width: 100%;
-    background: var(--white);
+    background: var(--accent);
     color: var(--black);
     border: none;
     font-family: var(--font-mono);
@@ -783,7 +897,7 @@
   .submit-btn::before {
     content: '';
     position: absolute; inset: 0;
-    background: var(--grey-light);
+    background: rgba(255,255,255,0.25);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
   }
@@ -900,7 +1014,7 @@
   }
   .chat-btn {
     width: 56px; height: 56px;
-    background: var(--white);
+    background: var(--accent);
     border: none; cursor: pointer;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -926,7 +1040,7 @@
     display: flex; align-items: center; justify-content: space-between;
   }
   .chat-header-info { display: flex; align-items: center; gap: 12px; }
-  .chat-dot { width: 8px; height: 8px; background: #9dffb0; border-radius: 50%; }
+  .chat-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
   .chat-header h4 { font-size: 14px; color: var(--white); }
   .chat-header p { font-family: var(--font-mono); font-size: 10px; color: var(--grey-mid); }
   .chat-close { color: var(--grey-mid); cursor: pointer; font-size: 18px; background: none; border: none; }
@@ -946,7 +1060,7 @@
     border-radius: 2px;
   }
   .msg-bot .msg-bubble { background: var(--black); color: var(--grey-light); }
-  .msg-user .msg-bubble { background: var(--white); color: var(--black); }
+  .msg-user .msg-bubble { background: var(--accent); color: var(--black); }
   .msg-time { font-family: var(--font-mono); font-size: 10px; color: var(--grey-mid); margin-top: 4px; }
   .chat-input-wrap {
     border-top: 1px solid var(--border);
@@ -965,15 +1079,15 @@
   .chat-input::placeholder { color: var(--grey-dark); }
   .chat-send {
     padding: 16px 20px;
-    background: var(--white);
+    background: var(--accent);
     border: none;
     cursor: pointer;
     color: var(--black);
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s;
+    transition: filter 0.2s;
   }
   .chat-send svg { width: 16px; height: 16px; }
-  .chat-send:hover { background: var(--grey-light); }
+  .chat-send:hover { filter: brightness(1.1); }
   .typing-dots { display: flex; gap: 4px; padding: 4px 0; }
   .typing-dots span {
     width: 6px; height: 6px;
@@ -1027,14 +1141,25 @@
 <!-- CURSOR GLOW -->
 <div class="cursor-glow" id="cursorGlow"></div>
 
-<!-- THEME TOGGLE RAIL -->
+<!-- THEME TOGGLE RAIL (draggable) -->
 <div class="theme-rail" id="themeRail">
-  <button id="themeDarkBtn" class="active" title="Dark theme" onclick="setTheme('dark')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-  </button>
-  <button id="themeLightBtn" title="Light theme" onclick="setTheme('light')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-  </button>
+  <div class="theme-rail-handle" id="themeRailHandle"></div>
+  <div class="theme-rail-group">
+    <button id="themeDarkBtn" class="active" title="Dark theme" onclick="setTheme('dark')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+    <button id="themeLightBtn" title="Light theme" onclick="setTheme('light')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    </button>
+  </div>
+  <div class="theme-rail-divider"></div>
+  <div class="theme-rail-group">
+    <button class="accent-dot active" style="--dot-color:#9dffb0" title="Emerald accent" onclick="setAccent('emerald', this)"></button>
+    <button class="accent-dot" style="--dot-color:#5AC8FA" title="Azure accent" onclick="setAccent('azure', this)"></button>
+    <button class="accent-dot" style="--dot-color:#FFB454" title="Amber accent" onclick="setAccent('amber', this)"></button>
+    <button class="accent-dot" style="--dot-color:#B98EFF" title="Violet accent" onclick="setAccent('violet', this)"></button>
+    <button class="accent-dot" style="--dot-color:#FF8FA3" title="Rose accent" onclick="setAccent('rose', this)"></button>
+  </div>
 </div>
 
 <!-- NAV -->
@@ -1064,7 +1189,7 @@
     <div class="hero-grid"></div>
     <div>
       <div class="hero-badge">Serving Businesses Across the USA</div>
-      <h1>WE BUILD<br><span class="accent">WEBSITES</span><br>THAT SELL</h1>
+      <h1>WE BUILD WEBSITES<br>THAT TURN VISITORS<br>INTO <span class="swap-word-wrap"><span class="accent swap-word" id="swapWord"><span class="swap-face swap-face-front" id="swapFront">LEADS</span><span class="swap-face swap-face-back" id="swapBack">CLIENTS</span></span></span></h1>
       <p class="hero-sub">Professional web development starting at $500 — one time, no surprises. We turn your vision into a lead-generating machine.</p>
       <div class="hero-actions">
         <button class="btn-primary" onclick="showPage('contact')">Start Your Project →</button>
@@ -1545,7 +1670,18 @@
     <div class="portfolio-grid" id="portfolioGrid">
       <div class="portfolio-card" style="animation-delay:0.1s">
         <div class="portfolio-tag">Home Care</div>
-        <img class="portfolio-img" src="https://images.unsplash.com/photo-1576765608866-5b51046452be?w=800&h=500&fit=crop&q=80" alt="Sila Senior Care" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&h=500&fit=crop&q=80'">
+        <svg class="portfolio-img" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="500" fill="#C97A4A"/>
+          <rect width="800" height="500" fill="url(#p1grad)"/>
+          <defs><linearGradient id="p1grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#C97A4A" stop-opacity="0.0"/><stop offset="100%" stop-color="#1A1A1A" stop-opacity="0.55"/></linearGradient></defs>
+          <rect x="0" y="0" width="800" height="86" fill="#1f1f1f"/>
+          <rect x="48" y="28" width="120" height="30" rx="4" fill="#fff" opacity="0.92"/>
+          <rect x="560" y="30" width="190" height="26" rx="13" fill="#fff" opacity="0.85"/>
+          <text x="48" y="220" font-family="Georgia, serif" font-size="44" fill="#fff">Not sure what</text>
+          <text x="48" y="270" font-family="Georgia, serif" font-size="44" fill="#fff">you need?</text>
+          <rect x="600" y="170" width="170" height="46" rx="2" fill="#fff"/>
+          <text x="685" y="199" font-family="Arial" font-size="13" fill="#1A1A1A" text-anchor="middle" font-weight="700">BOOK CONSULTATION</text>
+        </svg>
         <div class="portfolio-overlay">
           <div class="portfolio-type">Senior Care · Wilmington, NC</div>
           <div class="portfolio-title">Sila Senior Care</div>
@@ -1554,7 +1690,18 @@
       </div>
       <div class="portfolio-card" style="animation-delay:0.2s">
         <div class="portfolio-tag">In-Home Care</div>
-        <img class="portfolio-img" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=500&fit=crop&q=80" alt="American Global Care" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&h=500&fit=crop&q=80'">
+        <svg class="portfolio-img" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="500" fill="#0E2238"/>
+          <rect x="0" y="0" width="800" height="64" fill="#0a1c30"/>
+          <rect x="48" y="18" width="28" height="28" rx="8" fill="#3FAFA0"/>
+          <rect x="86" y="20" width="180" height="14" rx="3" fill="#fff" opacity="0.9"/>
+          <rect x="86" y="38" width="120" height="9" rx="2" fill="#9fb6c9"/>
+          <circle cx="700" cy="32" r="20" fill="#3FAFA0"/>
+          <text x="60" y="230" font-family="Georgia, serif" font-size="52" font-weight="700" fill="#fff">Compassionate</text>
+          <text x="60" y="290" font-family="Georgia, serif" font-size="52" font-weight="700" fill="#7DC4F2">Care, Comfort</text>
+          <rect x="600" y="380" width="150" height="42" rx="21" fill="#3FAFA0"/>
+          <rect x="600" y="330" width="150" height="42" rx="21" fill="#2563EB"/>
+        </svg>
         <div class="portfolio-overlay">
           <div class="portfolio-type">In-Home Support · North Las Vegas, NV</div>
           <div class="portfolio-title">American Global Care Inc.</div>
@@ -1563,7 +1710,21 @@
       </div>
       <div class="portfolio-card" style="animation-delay:0.3s">
         <div class="portfolio-tag">Services</div>
-        <img class="portfolio-img" src="https://images.unsplash.com/photo-1576765607924-3ce2e9c4a1d0?w=800&h=500&fit=crop&q=80" alt="Care Services Website" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&h=500&fit=crop&q=80'">
+        <svg class="portfolio-img" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="500" fill="#EEF2F6"/>
+          <rect x="0" y="0" width="800" height="56" fill="#fff"/>
+          <rect x="48" y="18" width="170" height="20" rx="4" fill="#1f2a44"/>
+          <rect x="640" y="14" width="120" height="28" rx="14" fill="#1d4ed8"/>
+          <rect x="100" y="100" width="240" height="24" rx="12" fill="#dbeafe"/>
+          <text x="220" y="118" font-family="Arial" font-size="12" fill="#1d4ed8" text-anchor="middle">WHAT WE OFFER</text>
+          <text x="400" y="180" font-family="Georgia, serif" font-size="36" fill="#0f172a" text-anchor="middle">All-Inclusive Care Solutions</text>
+          <rect x="70" y="230" width="190" height="220" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <rect x="290" y="230" width="190" height="220" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <rect x="510" y="230" width="190" height="220" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <rect x="90" y="250" width="150" height="80" rx="6" fill="#cbd5e1"/>
+          <rect x="310" y="250" width="150" height="80" rx="6" fill="#cbd5e1"/>
+          <rect x="530" y="250" width="150" height="80" rx="6" fill="#cbd5e1"/>
+        </svg>
         <div class="portfolio-overlay">
           <div class="portfolio-type">Personal Care · Nevada</div>
           <div class="portfolio-title">Care Solutions USA</div>
@@ -1572,7 +1733,20 @@
       </div>
       <div class="portfolio-card" style="animation-delay:0.1s">
         <div class="portfolio-tag">Mission Page</div>
-        <img class="portfolio-img" src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=500&fit=crop&q=80" alt="Goals & Mission Page" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&h=500&fit=crop&q=80'">
+        <svg class="portfolio-img" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="500" fill="#fff"/>
+          <rect width="800" height="230" fill="#1f3a52"/>
+          <rect width="800" height="230" fill="url(#p4grad)"/>
+          <defs><linearGradient id="p4grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1f3a52"/><stop offset="100%" stop-color="#1c5c4f"/></linearGradient></defs>
+          <rect x="48" y="120" width="150" height="26" rx="13" fill="#ffffff22"/>
+          <text x="60" y="138" font-family="Arial" font-size="11" fill="#fff">GOALS &amp; MISSION</text>
+          <text x="48" y="195" font-family="Georgia, serif" font-size="34" fill="#fff" font-weight="700">Our Purpose &amp; Vision</text>
+          <rect x="48" y="280" width="330" height="190" rx="10" fill="#16314a"/>
+          <rect x="420" y="280" width="330" height="190" rx="10" fill="url(#p4grad2)"/>
+          <defs><linearGradient id="p4grad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c5c4f"/><stop offset="100%" stop-color="#2e8a72"/></linearGradient></defs>
+          <text x="72" y="330" font-family="Georgia, serif" font-size="20" fill="#fff">Our Mission</text>
+          <text x="444" y="330" font-family="Georgia, serif" font-size="20" fill="#fff">Our Vision</text>
+        </svg>
         <div class="portfolio-overlay">
           <div class="portfolio-type">Goals & Vision · Nevada</div>
           <div class="portfolio-title">Purpose & Vision Build</div>
@@ -1581,7 +1755,23 @@
       </div>
       <div class="portfolio-card" style="animation-delay:0.2s">
         <div class="portfolio-tag">About Page</div>
-        <img class="portfolio-img" src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=800&h=500&fit=crop&q=80" alt="Sunnyside Home Care" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=500&fit=crop&q=80'">
+        <svg class="portfolio-img" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="500" fill="#fff"/>
+          <rect x="0" y="0" width="800" height="58" fill="#1f3a52"/>
+          <circle cx="60" cy="29" r="16" fill="#F2B441"/>
+          <rect x="86" y="18" width="180" height="22" rx="4" fill="#fff"/>
+          <rect x="660" y="14" width="110" height="30" rx="15" fill="#F2B441"/>
+          <rect x="48" y="100" width="280" height="320" rx="8" fill="#e8e4da"/>
+          <circle cx="188" cy="220" r="60" fill="#cbb89a"/>
+          <rect x="48" y="380" width="280" height="40" fill="#1f3a52"/>
+          <text x="370" y="150" font-family="Georgia, serif" font-size="16" fill="#c98b2e">MEET OUR FOUNDER</text>
+          <text x="370" y="200" font-family="Georgia, serif" font-size="38" fill="#1a1a1a" font-weight="700">A Message from</text>
+          <text x="370" y="244" font-family="Georgia, serif" font-size="38" fill="#1a1a1a" font-weight="700">Our CEO</text>
+          <rect x="370" y="280" width="4" height="90" fill="#F2B441"/>
+          <rect x="392" y="280" width="350" height="14" rx="2" fill="#888"/>
+          <rect x="392" y="306" width="320" height="14" rx="2" fill="#888"/>
+          <rect x="392" y="332" width="280" height="14" rx="2" fill="#888"/>
+        </svg>
         <div class="portfolio-overlay">
           <div class="portfolio-type">Home Care · Lewiston, Maine</div>
           <div class="portfolio-title">Sunnyside Home Care LLC</div>
@@ -1590,7 +1780,21 @@
       </div>
       <div class="portfolio-card" style="animation-delay:0.3s">
         <div class="portfolio-tag">Contact Form</div>
-        <img class="portfolio-img" src="https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=800&h=500&fit=crop&q=80" alt="Contact Form Design" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&h=500&fit=crop&q=80'">
+        <svg class="portfolio-img" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="500" fill="#F4F1EA"/>
+          <text x="48" y="90" font-family="Georgia, serif" font-size="38" fill="#1a1a1a" font-weight="700">Send us a message</text>
+          <text x="48" y="120" font-family="Arial" font-size="14" fill="#777">Fill out the form and we'll be in touch shortly.</text>
+          <text x="48" y="166" font-family="Arial" font-size="11" fill="#999" letter-spacing="1">FIRST NAME</text>
+          <rect x="48" y="176" width="330" height="46" rx="3" fill="#fff" stroke="#ddd"/>
+          <text x="420" y="166" font-family="Arial" font-size="11" fill="#999" letter-spacing="1">LAST NAME</text>
+          <rect x="420" y="176" width="330" height="46" rx="3" fill="#fff" stroke="#ddd"/>
+          <text x="48" y="250" font-family="Arial" font-size="11" fill="#999" letter-spacing="1">EMAIL ADDRESS</text>
+          <rect x="48" y="260" width="702" height="46" rx="3" fill="#fff" stroke="#ddd"/>
+          <text x="48" y="334" font-family="Arial" font-size="11" fill="#999" letter-spacing="1">MESSAGE</text>
+          <rect x="48" y="344" width="702" height="80" rx="3" fill="#fff" stroke="#ddd"/>
+          <rect x="48" y="440" width="702" height="44" rx="3" fill="#2E7D5F"/>
+          <text x="400" y="467" font-family="Arial" font-size="13" fill="#fff" text-anchor="middle" font-weight="700">SEND MESSAGE →</text>
+        </svg>
         <div class="portfolio-overlay">
           <div class="portfolio-type">Contact Integration · Multi-client</div>
           <div class="portfolio-title">Lead Capture Form System</div>
@@ -1599,6 +1803,7 @@
       </div>
     </div>
   </div>
+
 
   <div class="cta-banner">
     <div>
@@ -1772,6 +1977,29 @@
 </div>
 
 <script>
+// ─── HERO WORD SWAP (Leads ⇄ Clients) — 3D flip ────────
+(function initWordSwap() {
+  const el = document.getElementById('swapWord');
+  const front = document.getElementById('swapFront');
+  const back = document.getElementById('swapBack');
+  if (!el || !front || !back) return;
+  const words = ['LEADS', 'CLIENTS'];
+  let i = 0; // index currently shown on front
+  let flipped = false;
+
+  setInterval(() => {
+    const nextWord = words[(i + 1) % words.length];
+    if (!flipped) {
+      back.textContent = nextWord;
+    } else {
+      front.textContent = nextWord;
+    }
+    flipped = !flipped;
+    el.classList.toggle('flipped', flipped);
+    i = (i + 1) % words.length;
+  }, 3000);
+})();
+
 // ─── NAVIGATION ────────────────────────────────────────
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1802,12 +2030,102 @@ function setTheme(theme) {
     document.getElementById('themeDarkBtn').classList.add('active');
     document.getElementById('themeLightBtn').classList.remove('active');
   }
-  try { localStorage.setItem('wfl-theme', theme); } catch(e) {}
+}
+
+// ─── ACCENT COLOR ───────────────────────────────────────
+function setAccent(accent, btn) {
+  document.documentElement.setAttribute('data-accent', accent);
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
+  if (btn) btn.classList.add('active');
 }
 
 (function initTheme() {
-  // Default theme is always dark on load; website does not persist a forced light mode on its own.
+  // Default theme is always dark, default accent is emerald, on every load.
   document.documentElement.removeAttribute('data-theme');
+  document.documentElement.setAttribute('data-accent', 'emerald');
+})();
+
+// ─── DRAGGABLE THEME RAIL ───────────────────────────────
+(function initDraggableRail() {
+  const rail = document.getElementById('themeRail');
+  if (!rail) return;
+  let isDragging = false;
+  let hasMoved = false;
+  let startX = 0, startY = 0;
+  let railStartLeft = 0, railStartTop = 0;
+
+  function getPointer(e) {
+    if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function lockToLeftTop() {
+    // Convert current fixed right/top(transform) position into explicit left/top px,
+    // so dragging can move it freely from wherever it currently sits.
+    const rect = rail.getBoundingClientRect();
+    rail.style.left = rect.left + 'px';
+    rail.style.top = rect.top + 'px';
+    rail.style.right = 'auto';
+    rail.style.transform = 'none';
+  }
+
+  function onPointerDown(e) {
+    isDragging = true;
+    hasMoved = false;
+    lockToLeftTop();
+    const p = getPointer(e);
+    startX = p.x; startY = p.y;
+    const rect = rail.getBoundingClientRect();
+    railStartLeft = rect.left;
+    railStartTop = rect.top;
+    rail.classList.add('dragging');
+    document.body.style.userSelect = 'none';
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    const p = getPointer(e);
+    const dx = p.x - startX;
+    const dy = p.y - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
+
+    let newLeft = railStartLeft + dx;
+    let newTop = railStartTop + dy;
+
+    const railWidth = rail.offsetWidth;
+    const railHeight = rail.offsetHeight;
+    const maxLeft = window.innerWidth - railWidth - 4;
+    const maxTop = window.innerHeight - railHeight - 4;
+    newLeft = Math.max(4, Math.min(newLeft, maxLeft));
+    newTop = Math.max(4, Math.min(newTop, maxTop));
+
+    rail.style.left = newLeft + 'px';
+    rail.style.top = newTop + 'px';
+    e.preventDefault();
+  }
+
+  function onPointerUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    rail.classList.remove('dragging');
+    document.body.style.userSelect = '';
+  }
+
+  rail.addEventListener('mousedown', onPointerDown);
+  window.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('mouseup', onPointerUp);
+
+  rail.addEventListener('touchstart', onPointerDown, { passive: true });
+  window.addEventListener('touchmove', onPointerMove, { passive: false });
+  window.addEventListener('touchend', onPointerUp);
+
+  // Prevent click-through firing setTheme/setAccent right after a drag
+  rail.addEventListener('click', (e) => {
+    if (hasMoved) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, true);
 })();
 
 // ─── CURSOR GLOW ───────────────────────────────────────
